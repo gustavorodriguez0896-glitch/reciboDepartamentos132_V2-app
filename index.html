@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generador de Recibo Agua y Luz</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 24px;
+      background: #f4f6f8;
+      color: #333;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 24px;
+      border-radius: 14px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .section {
+      margin-bottom: 28px;
+      padding: 18px;
+      border: 1px solid #e2e6ea;
+      border-radius: 10px;
+      background: #fafbfc;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cfd6dd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    input[readonly] {
+      background: #eef3f7;
+      color: #444;
+      cursor: not-allowed;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #667;
+      margin-top: 4px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #1570ef;
+      color: white;
+    }
+
+    .btn-whatsapp {
+      background: #25D366;
+      color: white;
+      font-weight: bold;
+    }
+
+    .btn-whatsapp:hover {
+      background: #1ebe5d;
+    }
+
+    .totals-box {
+      background: #f0f7ff;
+      border: 1px solid #cfe3ff;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .totals-box .line {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #dde8f5;
+    }
+
+    .totals-box .line:last-child {
+      border-bottom: none;
+    }
+
+    .totals-box .grand-total {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0f3d75;
+    }
+
+    .receipt {
+      margin-top: 28px;
+      display: none;
+      border: 2px solid #d7dee7;
+      border-radius: 12px;
+      padding: 24px;
+      background: white;
+    }
+
+    .receipt-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .receipt-title {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .receipt-subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .receipt-info {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .receipt-section {
+      margin-top: 22px;
+    }
+
+    .receipt-section h3 {
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+    }
+
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 6px 0;
+    }
+
+    .receipt-total {
+      font-weight: bold;
+      font-size: 18px;
+      margin-top: 10px;
+    }
+
+    .medidor-box {
+      margin-top: 16px;
+      border: 2px dashed #b9c3cf;
+      border-radius: 10px;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #7a8794;
+      text-align: center;
+      padding: 12px;
+      background: #fcfdff;
+      overflow: hidden;
+    }
+
+    .medidor-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    /* Marco uniforme para previews en el formulario */
+    .foto-preview-marco {
+      margin-top: 8px;
+      width: 100%;
+      height: 200px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f9f9f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .foto-preview-marco img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .notes {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: normal;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .radio-group input[type="radio"] {
+      width: auto;
+      cursor: pointer;
+      accent-color: #1570ef;
+    }
+
+    .conversion-box {
+      display: none;
+      margin-top: 6px;
+      background: #fff8e6;
+      border: 1px solid #f5c842;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: #7a5c00;
+    }
+
+    .conversion-box .formula {
+      font-family: monospace;
+      font-weight: bold;
+      color: #b8860b;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .container > :not(.receipt):not(#pdfAdjunto) {
+        display: none !important;
+      }
+
+      .receipt {
+        display: block !important;
+        margin-top: 0;
+        border: none;
+        padding: 0;
+      }
+
+      #pdfAdjunto {
+        display: block !important;
+      }
+
+      .pdf-pagina {
+        page-break-before: always;
+        width: 100%;
+      }
+
+      .pdf-pagina img {
+        width: 100%;
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Generador de Recibo de Agua y Luz</h1>
+
+    <div class="section">
+      <h2>Datos generales</h2>
+      <div class="grid">
+        <div>
+          <label for="departamento">Departamento</label>
+          <input type="text" id="departamento" placeholder="Ej. 1" />
+        </div>
+
+        <div>
+          <label for="periodo">Periodo</label>
+          <select id="periodo">
+            <option value="">Selecciona un bimestre</option>
+            <option>Enero - Febrero</option>
+            <option>Marzo - Abril</option>
+            <option>Mayo - Junio</option>
+            <option>Julio - Agosto</option>
+            <option>Septiembre - Octubre</option>
+            <option>Noviembre - Diciembre</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="anio">Año</label>
+          <input type="number" id="anio" placeholder="Ej. 2025" />
+        </div>
+		
+		<div>
+		  <label for="numDepartamentos">Número de departamentos</label>
+		  <input type="number" id="numDepartamentos" min="1" value="3" />
+		</div>
+		
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>💧 Agua</h2>
+      <div class="grid">
+
+        <div>
+          <label for="totalAguaLitros">Total de agua del recibo (L)</label>
+          <input type="number" id="totalAguaLitros" min="0" step="0.01" placeholder="Ej. 21960" oninput="recalcular()" />
+          <div class="hint">Siempre en litros, tal como aparece en el recibo.</div>
+        </div>
+
+        <div>
+          <label id="labelConsumo">Consumo del departamento (L)</label>
+          <div class="radio-group">
+            <label><input type="radio" name="unidadConsumo" value="litros" checked onchange="cambiarUnidadConsumo(this)"> Litros (L)</label>
+            <label><input type="radio" name="unidadConsumo" value="galones" onchange="cambiarUnidadConsumo(this)"> Galones (gal)</label>
+          </div>
+          <!-- Campo de captura (editable) -->
+          <input type="number" id="consumoInput" min="0" step="0.01" placeholder="Ej. 4500" oninput="convertirConsumo()" />
+          <!-- Caja de conversión (solo visible en modo galones) -->
+          <div class="conversion-box" id="conversionConsumo" style="display:none;">
+            <span id="formulaConsumo" class="formula"></span>
+          </div>
+          <!-- Resultado en litros bloqueado (solo visible en modo galones) -->
+          <input type="number" id="consumoDepartamento" min="0" step="0.01" readonly
+                 style="margin-top:6px; display:none;"
+                 placeholder="Resultado en litros" />
+          <div class="hint" id="hintConsumo">Ingresa el consumo del departamento.</div>
+        </div>
+
+        <div>
+          <label for="totalReciboAgua">Total del recibo de agua ($)</label>
+          <input type="number" id="totalReciboAgua" min="0" step="0.01" placeholder="Ej. 134" />
+        </div>
+
+        <div>
+          <label for="porcentajeAgua">Porcentaje de consumo (%)</label>
+          <input type="text" id="porcentajeAgua" readonly />
+          <div class="hint">Se calcula automáticamente</div>
+        </div>
+
+        <div>
+          <label for="importeAgua">Importe de agua del departamento ($)</label>
+          <input type="text" id="importeAgua" readonly />
+          <div class="hint">Se calcula según el porcentaje</div>
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <label>📷 Foto del recibo de agua <span style="font-weight:normal;color:#888;">(opcional)</span></label>
+          <input type="file" id="fotoReciboAgua" accept="image/*" />
+          <div class="hint">Selecciona desde galería o toma foto. Se mostrará en el recibo.</div>
+          <div id="previewReciboAgua" style="display:none;">
+            <div class="foto-preview-marco"><img id="imgReciboAgua" /></div>
+          </div>
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <label>📷 Foto del medidor de agua <span style="font-weight:normal;color:#888;">(opcional)</span></label>
+          <input type="file" id="fotoMedidor" accept="image/*" />
+          <div class="hint">Selecciona desde galería o toma foto. Se mostrará en el recibo.</div>
+          <div id="previewMedidor" style="display:none;">
+            <div class="foto-preview-marco"><img id="imgMedidor" /></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>⚡ Luz de la bomba</h2>
+      <div class="grid">
+        <div>
+          <label for="totalReciboLuz">Total del recibo de luz ($)</label>
+          <input type="number" id="totalReciboLuz" min="0" step="0.01" placeholder="Ej. 206" />
+        </div>
+
+        <div>
+          <label for="mitadLuz">50% del recibo de luz ($)</label>
+          <input type="text" id="mitadLuz" readonly />
+          <div class="hint">Corresponde a la mitad del recibo</div>
+        </div>
+
+        <div>
+          <label for="parteFijaDepto">Parte fija por departamento ($)</label>
+          <input type="text" id="parteFijaDepto" readonly />
+          <div class="hint">Mitad del recibo ÷ 3 departamentos</div>
+        </div>
+
+        <div>
+          <label for="parteVariableDepto">Parte variable del departamento ($)</label>
+          <input type="text" id="parteVariableDepto" readonly />
+          <div class="hint">Se calcula con el porcentaje del agua</div>
+        </div>
+
+        <div>
+          <label for="totalLuzDepto">Total de luz del departamento ($)</label>
+          <input type="text" id="totalLuzDepto" readonly />
+          <div class="hint">Parte fija + parte variable</div>
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <label>📷 Foto del recibo de luz <span style="font-weight:normal;color:#888;">(opcional)</span></label>
+          <input type="file" id="fotoReciboLuz" accept="image/*" />
+          <div class="hint">Selecciona desde galería o toma foto. Se mostrará en el recibo.</div>
+          <div id="previewReciboLuz" style="display:none;">
+            <div class="foto-preview-marco"><img id="imgReciboLuz" /></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🧾 Total a pagar</h2>
+      <div class="totals-box">
+        <div class="line">
+          <span>Importe de agua</span>
+          <strong id="resumenAgua">$0.00</strong>
+        </div>
+        <div class="line">
+          <span>Total de luz</span>
+          <strong id="resumenLuz">$0.00</strong>
+        </div>
+        <div class="line grand-total">
+          <span>Total final</span>
+          <strong id="resumenTotal">$0.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="seccionPdfLuz">
+      <h2>📎 PDF del recibo de luz del departamento</h2>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+        <input type="checkbox" id="incluirPdfLuz" onchange="togglePdfLuz()" style="width:auto; accent-color:#1570ef; width:18px; height:18px; cursor:pointer;" />
+        <label for="incluirPdfLuz" style="font-weight:normal; cursor:pointer; font-size:15px;">
+          Incluir el PDF del recibo de CFE en la impresión
+        </label>
+      </div>
+      <div id="areaPdfLuz" style="display:none;">
+        <input type="file" id="archivoPdfLuz" accept="application/pdf" />
+        <div class="hint">Se convertirá a imágenes y se agregará después del recibo al imprimir.</div>
+        <div id="previewPdfLuz" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn-primary" onclick="generarRecibo()">Generar recibo</button>
+      <button class="btn-secondary" onclick="imprimirConPdf()">Imprimir / Guardar PDF</button>
+      <button class="btn-whatsapp" onclick="enviarWhatsApp()">📲 Enviar por WhatsApp</button>
+      <button class="btn-secondary" onclick="limpiarFormulario()">Limpiar</button>
+    </div>
+
+    <!-- Modal de WhatsApp -->
+    <div id="modalWhatsApp" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+      <div style="background:white; border-radius:14px; padding:24px; max-width:380px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+        <h3 style="margin:0 0 8px; font-size:17px;">📲 Enviar por WhatsApp</h3>
+        <p style="font-size:13px; color:#555; margin:0 0 16px;">El PDF se descargará en tu teléfono. Luego WhatsApp abrirá para que lo adjuntes.</p>
+        <label style="font-size:13px; font-weight:bold;">Número de WhatsApp del destinatario</label>
+        <div style="display:flex; gap:6px; margin-top:6px; margin-bottom:6px;">
+          <input type="text" id="waLada" placeholder="+52" style="width:70px; padding:10px 8px; font-size:14px; border:1px solid #ccc; border-radius:8px;" />
+          <input type="tel" id="waTelefono" placeholder="Ej. 5512345678" style="flex:1; padding:10px 12px; font-size:14px; border:1px solid #ccc; border-radius:8px;" />
+        </div>
+        <div style="font-size:12px; color:#888; margin-bottom:16px;">Incluye el código de país, ej. +52 para México</div>
+        <div style="display:flex; gap:10px;">
+          <button onclick="confirmarEnvioWhatsApp()" style="flex:1; background:#25D366; color:white; border:none; border-radius:8px; padding:12px; font-size:15px; font-weight:bold; cursor:pointer;">Descargar y abrir WhatsApp</button>
+          <button onclick="cerrarModalWA()" style="background:#e5e7eb; color:#333; border:none; border-radius:8px; padding:12px 16px; font-size:15px; cursor:pointer;">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="receipt" id="reciboFinal"></div>
+    <div id="pdfAdjunto" style="display:none;"></div>
+  </div>
+
+  <!-- PDF.js para renderizar el PDF del recibo de CFE -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- html2pdf para generar PDF del recibo -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const GALONES_A_LITROS = 3.78541;
+
+    // Referencias
+    const totalAguaLitros      = document.getElementById("totalAguaLitros");
+    const consumoDepartamento  = document.getElementById("consumoDepartamento");
+    const totalReciboAgua      = document.getElementById("totalReciboAgua");
+    const totalReciboLuz       = document.getElementById("totalReciboLuz");
+    const porcentajeAgua       = document.getElementById("porcentajeAgua");
+    const importeAgua          = document.getElementById("importeAgua");
+    const mitadLuz             = document.getElementById("mitadLuz");
+    const parteFijaDepto       = document.getElementById("parteFijaDepto");
+    const parteVariableDepto   = document.getElementById("parteVariableDepto");
+    const totalLuzDepto        = document.getElementById("totalLuzDepto");
+    const resumenAgua          = document.getElementById("resumenAgua");
+    const resumenLuz           = document.getElementById("resumenLuz");
+    const resumenTotal         = document.getElementById("resumenTotal");
+
+    let fotoMedidorBase64    = "";
+    let fotoReciboAguaBase64 = "";
+    let fotoReciboLuzBase64  = "";
+    let unidadConsumo = "litros";
+
+    function numero(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+    function dinero(v)  { return "$" + numero(v).toFixed(2); }
+    function porcentajeFmt(v) { return numero(v).toFixed(2) + "%"; }
+
+    // ── Fotos con preview ────────────────────────────────────────
+    function configurarFoto(inputId, previewDivId, imgId, varSetter) {
+      document.getElementById(inputId).addEventListener("change", function(e) {
+        const file = e.target.files[0];
+        if (!file) { varSetter(""); document.getElementById(previewDivId).style.display = "none"; return; }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          varSetter(ev.target.result);
+          document.getElementById(imgId).src = ev.target.result;
+          document.getElementById(previewDivId).style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    configurarFoto("fotoMedidor",    "previewMedidor",    "imgMedidor",    (v) => { fotoMedidorBase64   = v; });
+    configurarFoto("fotoReciboAgua", "previewReciboAgua", "imgReciboAgua", (v) => { fotoReciboAguaBase64 = v; });
+    configurarFoto("fotoReciboLuz",  "previewReciboLuz",  "imgReciboLuz",  (v) => { fotoReciboLuzBase64  = v; });
+
+    // ── Cambio de unidad: Consumo del departamento ───────────────
+    function cambiarUnidadConsumo(radio) {
+      unidadConsumo = radio.value;
+      const convBox  = document.getElementById("conversionConsumo");
+      const campoLit = consumoDepartamento;
+      const hint     = document.getElementById("hintConsumo");
+      const input    = document.getElementById("consumoInput");
+      const label    = document.getElementById("labelConsumo");
+
+      if (unidadConsumo === "galones") {
+        input.placeholder      = "Ej. 102 gal";
+        hint.textContent       = "Ingresa los galones — el resultado en litros aparece abajo bloqueado.";
+        label.textContent      = "Consumo del departamento (gal → L)";
+        convBox.style.display  = "block";
+        campoLit.style.display = "block";
+      } else {
+        input.placeholder      = "Ej. 4500";
+        hint.textContent       = "Ingresa el consumo del departamento en litros.";
+        label.textContent      = "Consumo del departamento (L)";
+        convBox.style.display  = "none";
+        campoLit.style.display = "none";
+        campoLit.value         = "";
+      }
+      document.getElementById("consumoInput").value = "";
+      recalcular();
+    }
+
+    function convertirConsumo() {
+      const val = numero(document.getElementById("consumoInput").value);
+      if (unidadConsumo === "galones") {
+        const litros = val * GALONES_A_LITROS;
+        document.getElementById("formulaConsumo").textContent =
+          `${val.toFixed(2)} gal × 3.78541 = ${litros.toFixed(2)} L`;
+        consumoDepartamento.value = litros.toFixed(4);
+      } else {
+        consumoDepartamento.value = val;
+      }
+      recalcular();
+    }
+
+    // ── Recalcular ───────────────────────────────────────────────
+    function recalcular() {
+      // En modo litros el consumo viene del consumoInput directo
+      if (unidadConsumo === "litros") {
+        consumoDepartamento.value = numero(document.getElementById("consumoInput").value);
+      }
+
+      const totalAgua  = numero(totalAguaLitros.value);
+      const consumo    = numero(consumoDepartamento.value);
+      const reciboAgua = numero(totalReciboAgua.value);
+      const reciboLuz  = numero(totalReciboLuz.value);
+      const numDeptos  = numero(document.getElementById("numDepartamentos").value) || 1;
+
+      const pct = totalAgua > 0 ? (consumo / totalAgua) * 100 : 0;
+
+      const aguaDepto     = (reciboAgua * pct) / 100;
+      const mitad         = reciboLuz / 2;
+      const fijoDepto     = mitad / numDeptos;
+      const variableDepto = (mitad * pct) / 100;
+      const luzDepto      = fijoDepto + variableDepto;
+      const totalFinal    = aguaDepto + luzDepto;
+
+      porcentajeAgua.value     = porcentajeFmt(pct);
+      importeAgua.value        = numero(aguaDepto).toFixed(2);
+      mitadLuz.value           = numero(mitad).toFixed(2);
+      parteFijaDepto.value     = numero(fijoDepto).toFixed(2);
+      parteVariableDepto.value = numero(variableDepto).toFixed(2);
+      totalLuzDepto.value      = numero(luzDepto).toFixed(2);
+
+      resumenAgua.textContent  = dinero(aguaDepto);
+      resumenLuz.textContent   = dinero(luzDepto);
+      resumenTotal.textContent = dinero(totalFinal);
+    }
+
+    // Listeners
+    totalAguaLitros.addEventListener("input", recalcular);
+    document.getElementById("consumoInput").addEventListener("input", convertirConsumo);
+    totalReciboAgua.addEventListener("input", recalcular);
+    totalReciboLuz.addEventListener("input", recalcular);
+    document.getElementById("numDepartamentos").addEventListener("input", recalcular);
+
+
+    // ── PDF del recibo de CFE ────────────────────────────────────
+    function togglePdfLuz() {
+      const checked = document.getElementById("incluirPdfLuz").checked;
+      document.getElementById("areaPdfLuz").style.display = checked ? "block" : "none";
+      if (!checked) {
+        document.getElementById("archivoPdfLuz").value = "";
+        document.getElementById("previewPdfLuz").innerHTML = "";
+        document.getElementById("pdfAdjunto").innerHTML = "";
+        document.getElementById("pdfAdjunto").style.display = "none";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("archivoPdfLuz").addEventListener("change", async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const preview = document.getElementById("previewPdfLuz");
+        preview.innerHTML = '<p style="color:#888;font-size:13px;">Cargando PDF…</p>';
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        preview.innerHTML = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 1.5 });
+          const canvas = document.createElement("canvas");
+          canvas.width  = viewport.width;
+          canvas.height = viewport.height;
+          canvas.style.cssText = "max-width:100%;border:1px solid #ddd;border-radius:6px;margin-top:8px;display:block;";
+          await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+          preview.appendChild(canvas);
+        }
+        preview.insertAdjacentHTML("afterbegin",
+          `<p style="font-size:13px;color:#555;">✅ PDF cargado — ${pdf.numPages} página(s). Se incluirá al imprimir.</p>`);
+      });
+    });
+
+    async function imprimirConPdf() {
+      const incluir  = document.getElementById("incluirPdfLuz").checked;
+      const adjunto  = document.getElementById("pdfAdjunto");
+      const file     = document.getElementById("archivoPdfLuz").files[0];
+
+      if (incluir && file) {
+        adjunto.innerHTML = "";
+        adjunto.style.display = "block";
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page    = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 2 });
+          const canvas  = document.createElement("canvas");
+          canvas.width  = viewport.width;
+          canvas.height = viewport.height;
+          await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+          const div = document.createElement("div");
+          div.className = "pdf-pagina";
+          const img = document.createElement("img");
+          img.src = canvas.toDataURL("image/jpeg", 0.92);
+          div.appendChild(img);
+          adjunto.appendChild(div);
+        }
+      } else {
+        adjunto.innerHTML = "";
+        adjunto.style.display = "none";
+      }
+
+      setTimeout(() => window.print(), 300);
+    }
+
+    function generarRecibo() {
+      recalcular();
+
+      const departamento    = document.getElementById("departamento").value.trim();
+      const periodo         = document.getElementById("periodo").value.trim();
+      const anio            = document.getElementById("anio").value.trim();
+      const numDeptos       = numero(document.getElementById("numDepartamentos").value) || 1;
+      const inputConsumoVal = numero(document.getElementById("consumoInput").value);
+      const totalAgua       = numero(totalAguaLitros.value);
+      const consumo         = numero(consumoDepartamento.value);
+      const pct             = porcentajeAgua.value;
+      const reciboAgua      = numero(totalReciboAgua.value);
+      const aguaDepto       = numero(importeAgua.value);
+      const reciboLuz       = numero(totalReciboLuz.value);
+      const mitad           = numero(mitadLuz.value);
+      const fijoDepto       = numero(parteFijaDepto.value);
+      const variableDepto   = numero(parteVariableDepto.value);
+      const luzDepto        = numero(totalLuzDepto.value);
+      const totalFinal      = aguaDepto + luzDepto;
+
+      const lineaConvConsumo = unidadConsumo === "galones"
+        ? `<div class="receipt-row" style="color:#7a5c00;font-style:italic;font-size:13px;"><span>  ↳ ${inputConsumoVal.toFixed(2)} gal × 3.78541 =</span><span>${consumo.toFixed(2)} L</span></div>`
+        : "";
+
+      const fotoHelper = (b64, alt) => b64
+        ? `<div class="medidor-box"><img src="${b64}" alt="${alt}"></div>`
+        : "";
+
+      const html = `
+        <div class="receipt-header">
+          <div class="receipt-title">RECIBO DE AGUA Y ENERGÍA ELÉCTRICA</div>
+          <div class="receipt-subtitle">Sistema de bomba compartida</div>
+        </div>
+        <div class="receipt-info">
+          <div><strong>Departamento:</strong> ${departamento || "-"}</div>
+          <div><strong>Periodo:</strong> ${periodo || "-"} ${anio || ""}</div>
+          <div><strong>No. departamentos:</strong> ${numDeptos}</div>
+        </div>
+        <div class="receipt-section">
+          <h3>💧 Consumo de Agua</h3>
+          <div class="receipt-row"><span>Consumo total del inmueble:</span><span>${totalAgua.toFixed(2)} L</span></div>
+          <div class="receipt-row"><span>Consumo del departamento:</span><span>${unidadConsumo === "galones" ? inputConsumoVal.toFixed(2) + " gal" : consumo.toFixed(2) + " L"}</span></div>
+          ${lineaConvConsumo}
+          <div class="receipt-row"><span>Porcentaje de consumo:</span><span>${pct}</span></div>
+          <div class="receipt-row"><span>Costo total del agua:</span><span>${dinero(reciboAgua)}</span></div>
+          <div class="receipt-row"><span><strong>Importe proporcional:</strong></span><strong>${dinero(aguaDepto)}</strong></div>
+          ${fotoHelper(fotoReciboAguaBase64, "Recibo de agua")}
+          ${fotoHelper(fotoMedidorBase64, "Medidor de agua")}
+        </div>
+        <div class="receipt-section">
+          <h3>⚡ Energía Eléctrica de la Bomba</h3>
+          <div class="receipt-row"><span>Total del recibo de luz:</span><span>${dinero(reciboLuz)}</span></div>
+          <div class="receipt-row"><span>50% fijo ÷ ${numDeptos} deptos:</span><span>${dinero(fijoDepto)}</span></div>
+          <div class="receipt-row"><span>50% variable (${pct}):</span><span>${dinero(variableDepto)}</span></div>
+          <div class="receipt-row"><span><strong>Importe total de luz:</strong></span><strong>${dinero(luzDepto)}</strong></div>
+          ${fotoHelper(fotoReciboLuzBase64, "Recibo de luz")}
+        </div>
+        <div class="receipt-section">
+          <h3>🧾 Total a Pagar</h3>
+          <div class="receipt-row"><span><strong>AGUA:</strong></span>${dinero(aguaDepto)}</div>
+          <div class="receipt-row"><span><strong>LUZ:</strong></span>${dinero(luzDepto)}</div>
+          <div class="receipt-row receipt-total"><span>TOTAL FINAL:</span><strong>${dinero(totalFinal)}</strong></div>
+        </div>
+        <div class="notes">
+          <p><strong>Notas:</strong></p>
+          <p>1. El agua se cobra proporcional al consumo registrado.</p>
+          <p>2. La luz se divide en 50% fijo (uso común) y 50% variable según consumo.</p>
+          <p>3. El porcentaje utilizado es el mismo del consumo de agua.</p>
+        </div>
+      `;
+
+      const reciboFinal = document.getElementById("reciboFinal");
+      reciboFinal.innerHTML = html;
+      reciboFinal.style.display = "block";
+      reciboFinal.scrollIntoView({ behavior: "smooth" });
+    }
+
+    function limpiarFormulario() {
+      ["departamento","anio","totalAguaLitros","consumoInput",
+       "totalReciboAgua","totalReciboLuz",
+       "fotoMedidor","fotoReciboAgua","fotoReciboLuz"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+      document.getElementById("periodo").value = "";
+      document.getElementById("numDepartamentos").value = "3";
+      fotoMedidorBase64    = "";
+      fotoReciboAguaBase64 = "";
+      fotoReciboLuzBase64  = "";
+
+      // Ocultar previews
+      ["previewMedidor","previewReciboAgua","previewReciboLuz"].forEach(id => {
+        document.getElementById(id).style.display = "none";
+      });
+
+      // Resetear radio a litros
+      document.querySelectorAll('input[name="unidadConsumo"]')[0].checked = true;
+      unidadConsumo = "litros";
+      document.getElementById("labelConsumo").textContent      = "Consumo del departamento (L)";
+      document.getElementById("conversionConsumo").style.display = "none";
+      consumoDepartamento.style.display = "none";
+      consumoDepartamento.value = "";
+      document.getElementById("hintConsumo").textContent = "Ingresa el consumo del departamento en litros.";
+      document.getElementById("consumoInput").placeholder = "Ej. 4500";
+
+      ["porcentajeAgua","importeAgua","mitadLuz","parteFijaDepto",
+       "parteVariableDepto","totalLuzDepto"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+      resumenAgua.textContent  = "$0.00";
+      resumenLuz.textContent   = "$0.00";
+      resumenTotal.textContent = "$0.00";
+      // Limpiar PDF adjunto
+      document.getElementById("incluirPdfLuz").checked = false;
+      document.getElementById("areaPdfLuz").style.display = "none";
+      document.getElementById("archivoPdfLuz").value = "";
+      document.getElementById("previewPdfLuz").innerHTML = "";
+      document.getElementById("pdfAdjunto").innerHTML = "";
+      document.getElementById("pdfAdjunto").style.display = "none";
+
+      const r = document.getElementById("reciboFinal");
+      r.style.display = "none";
+      r.innerHTML = "";
+    }
+
+    // ── WhatsApp ─────────────────────────────────────────────────
+    function enviarWhatsApp() {
+      const recibo = document.getElementById("reciboFinal");
+      if (!recibo || recibo.style.display === "none" || recibo.innerHTML.trim() === "") {
+        alert("Primero genera el recibo con el botón 'Generar recibo'.");
+        return;
+      }
+      document.getElementById("waLada").value = document.getElementById("waLada").value || "+52";
+      document.getElementById("modalWhatsApp").style.display = "flex";
+    }
+
+    function cerrarModalWA() {
+      document.getElementById("modalWhatsApp").style.display = "none";
+    }
+
+    async function confirmarEnvioWhatsApp() {
+      const lada   = document.getElementById("waLada").value.trim().replace(/\s/g, "");
+      const tel    = document.getElementById("waTelefono").value.trim().replace(/\D/g, "");
+      const numero = lada.replace("+", "") + tel;
+
+      if (!tel) { alert("Ingresa el número de WhatsApp."); return; }
+
+      const depto       = document.getElementById("departamento").value.trim() || "depto";
+      const periodo     = document.getElementById("periodo").value.trim().replace(/\s/g, "_") || "periodo";
+      const nombreArchivo = `Recibo_${depto}_${periodo}.pdf`;
+
+      const opt = {
+        margin:      [8, 8, 8, 8],
+        filename:    nombreArchivo,
+        image:       { type: "jpeg", quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF:       { unit: "mm", format: "a4", orientation: "portrait" }
+      };
+
+      cerrarModalWA();
+
+      const aviso = document.createElement("div");
+      aviso.id = "avisoDescarga";
+      aviso.innerHTML = `<div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1570ef;color:white;padding:12px 20px;border-radius:10px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);">⏳ Generando PDF…</div>`;
+      document.body.appendChild(aviso);
+
+      await html2pdf().set(opt).from(document.getElementById("reciboFinal")).save();
+
+      aviso.innerHTML = `<div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#25D366;color:white;padding:12px 20px;border-radius:10px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);">✅ PDF descargado — abriendo WhatsApp…</div>`;
+
+      setTimeout(() => {
+        document.body.removeChild(aviso);
+        const msg = encodeURIComponent(`Hola, te comparto el recibo de agua y luz. Adjunto el PDF 📄`);
+        window.open(`https://wa.me/${numero}?text=${msg}`, "_blank");
+      }, 1800);
+    }
+
+    recalcular();
+  </script>
+</body>
+</html>
